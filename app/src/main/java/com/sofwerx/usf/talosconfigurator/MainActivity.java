@@ -1,4 +1,4 @@
-package com.example.junior.talosconfigurator;
+package com.sofwerx.usf.talosconfigurator;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;

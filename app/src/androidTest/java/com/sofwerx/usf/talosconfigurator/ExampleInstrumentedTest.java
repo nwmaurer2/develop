@@ -1,4 +1,4 @@
-package com.example.junior.talosconfigurator;
+package com.sofwerx.usf.talosconfigurator;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

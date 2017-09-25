@@ -1,4 +1,4 @@
-package com.example.junior.talosconfigurator;
+package com.sofwerx.usf.talosconfigurator;
 
 import org.junit.Test;
 
