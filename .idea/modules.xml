@@ -4,6 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/TalosConfigurator.iml" filepath="$PROJECT_DIR$/TalosConfigurator.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/talos.iml" filepath="$PROJECT_DIR$/talos.iml" />
     </modules>
   </component>
 </project>
