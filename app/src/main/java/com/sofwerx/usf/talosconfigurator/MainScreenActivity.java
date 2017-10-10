@@ -1,5 +1,6 @@
 package com.sofwerx.usf.talosconfigurator;
 
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
 
@@ -8,6 +9,9 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.view.View;
+
+import java.util.HashMap;
 
 public class MainScreenActivity extends AppCompatActivity {
 
@@ -20,15 +24,29 @@ public class MainScreenActivity extends AppCompatActivity {
      * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
+    static final String SUIT_MODES = "suit_modes";
 
     /**
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
+    private HashMap<Integer, CharSequence> mModes;
+    private TabLayout tabLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(savedInstanceState != null) {
+            mModes = (HashMap<Integer, CharSequence>) savedInstanceState.getSerializable(SUIT_MODES);
+        }
+        else {
+            mModes = new HashMap<Integer, CharSequence>();
+        }
+        mModes.put(0, "FILE");
+        mModes.put(1, "ASSAULT");
+        mModes.put(2, "INFIL");
+        mModes.put(3, "RECON");
+
         setContentView(R.layout.activity_main_screen);
 
         // Create the adapter that will return a fragment for each of the seven
@@ -39,11 +57,29 @@ public class MainScreenActivity extends AppCompatActivity {
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mModes.put(mModes.size(), "New Mode");
+                mViewPager.setAdapter(mSectionsPagerAdapter);
+                tabLayout.setupWithViewPager(mViewPager);
+            }
+        });
 
 
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putSerializable(SUIT_MODES, mModes);
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+
 
 
     /**
@@ -70,28 +106,14 @@ public class MainScreenActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            return 7;
+            //return size of map
+            return mModes.size();
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
-            switch (position) {
-                case 0:
-                    return "FILE";
-                case 1:
-                    return "BUTTONS";
-                case 2:
-                    return "ASSAULT";
-                case 3:
-                    return "INFIL";
-                case 4:
-                    return "RECON";
-                case 5:
-                    return "SECTION 6";
-                case 6:
-                    return "SECTION 7";
-            }
-            return null;
+            //make a map<int, CharSequence>
+            return mModes.get(position);
         }
     }
 }
