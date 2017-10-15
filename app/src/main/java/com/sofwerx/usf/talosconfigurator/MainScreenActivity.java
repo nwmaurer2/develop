@@ -60,16 +60,32 @@ public class MainScreenActivity extends AppCompatActivity {
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
+        // New Tab Button
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mModes.put(mModes.size(), "New Mode");
+                Integer newIdx = mModes.size();
+                mModes.put(newIdx, "New Mode");
                 mViewPager.setAdapter(mSectionsPagerAdapter);
                 tabLayout.setupWithViewPager(mViewPager);
             }
         });
 
+        // Delete Tab
+        FloatingActionButton deleteTabBtn = (FloatingActionButton) findViewById(R.id.del);
+        deleteTabBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Integer currentTab = tabLayout.getSelectedTabPosition();
+                if (currentTab > 0) {
+                    // Trying to remove mModes crashes
+                    // Need to remove the deleted mMode else when you add a new tab they all come back.
+                    // mModes.remove(currentTab);
+                    tabLayout.removeTabAt(currentTab);
+                }
+            }
+        });
 
     }
 
