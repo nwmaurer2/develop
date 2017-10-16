@@ -33,7 +33,7 @@ public class MainScreenActivity extends AppCompatActivity {
      */
     private ViewPager mViewPager;
     private ArrayList<CharSequence> mModes;
-    private HashMap<Integer, Fragment> modeFragments;
+    private ArrayList<Fragment> modeFragments;
     private TabLayout tabLayout;
     private Button deleteTabBtn, renameModeBtn;
 
@@ -45,7 +45,7 @@ public class MainScreenActivity extends AppCompatActivity {
         }
         else {
             mModes = new ArrayList<CharSequence>();
-            modeFragments = new HashMap<Integer, Fragment>();
+            modeFragments = new ArrayList<Fragment>();
         }
         mModes.add("FILE");
         mModes.add("ASSAULT");
@@ -94,10 +94,14 @@ public class MainScreenActivity extends AppCompatActivity {
         newTabBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Integer newIdx = mModes.size();
                 mModes.add("New Mode");
+                mSectionsPagerAdapter.notifyDataSetChanged();
+
                 mViewPager.setAdapter(mSectionsPagerAdapter);
                 tabLayout.setupWithViewPager(mViewPager);
+
+                // Goto the new tab
+                mViewPager.setCurrentItem(mModes.size());
             }
         });
 
@@ -106,7 +110,9 @@ public class MainScreenActivity extends AppCompatActivity {
         renameModeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                deleteTab(tabLayout.getSelectedTabPosition());
+                Integer pos = tabLayout.getSelectedTabPosition();
+                mViewPager.setCurrentItem(pos - 1);
+                deleteTab(pos);
             }
         });
 
