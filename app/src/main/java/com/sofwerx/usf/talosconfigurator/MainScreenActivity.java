@@ -2,6 +2,7 @@ package com.sofwerx.usf.talosconfigurator;
 
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 
 import android.support.v4.app.Fragment;
@@ -9,11 +10,11 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class MainScreenActivity extends AppCompatActivity {
 
@@ -35,7 +36,7 @@ public class MainScreenActivity extends AppCompatActivity {
     private ArrayList<CharSequence> mModes;
     private ArrayList<Fragment> modeFragments;
     private TabLayout tabLayout;
-    private Button deleteTabBtn, renameModeBtn;
+    private Button deleteTabBtn, renameModeBtn, buttonsConfig;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,9 +73,12 @@ public class MainScreenActivity extends AppCompatActivity {
                 if (tab.getPosition() == 0) {
                     deleteTabBtn.setVisibility(View.INVISIBLE);
                     renameModeBtn.setVisibility(View.INVISIBLE);
+                    buttonsConfig.setVisibility(View.INVISIBLE);
+
                 } else {
                     deleteTabBtn.setVisibility(View.VISIBLE);
                     renameModeBtn.setVisibility(View.VISIBLE);
+                    buttonsConfig.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -124,6 +128,21 @@ public class MainScreenActivity extends AppCompatActivity {
                 // Do work here
                 // Popup a dialog for the user to type in a new name
                 // Set the tab name
+            }
+        });
+
+        buttonsConfig = (Button) findViewById(R.id.button_config);
+        buttonsConfig.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ButtonsTabFragment buttonsTabFragment = ButtonsTabFragment.
+                        newInstance(mViewPager.getCurrentItem());
+
+                FragmentTransaction transaction = getSupportFragmentManager()
+                        .beginTransaction();
+
+                transaction.replace(R.id.container, buttonsTabFragment);
+                transaction.addToBackStack(null);
             }
         });
 

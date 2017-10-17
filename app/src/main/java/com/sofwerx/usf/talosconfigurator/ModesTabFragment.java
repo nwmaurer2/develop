@@ -3,15 +3,17 @@ package com.sofwerx.usf.talosconfigurator;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 
-public class ModesTabFragment extends Fragment {
+public class ModesTabFragment extends Fragment implements View.OnClickListener {
 
     private static final String ARG_SECTION_NUMBER = "section_number";
+    private static final String TAG = "ModesTab";
 
 
     public ModesTabFragment() {}
@@ -31,9 +33,16 @@ public class ModesTabFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_modes_tab, container, false);
-        TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-        textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
         return rootView;
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch(v.getId()) {
+            case R.id.button_config:
+
+                break;
+        }
     }
 
 }
