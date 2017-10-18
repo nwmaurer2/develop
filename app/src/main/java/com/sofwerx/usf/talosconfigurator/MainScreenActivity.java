@@ -1,7 +1,11 @@
 package com.sofwerx.usf.talosconfigurator;
 
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 
 import android.support.v4.app.Fragment;
@@ -25,16 +29,16 @@ public class MainScreenActivity extends AppCompatActivity {
      * may be best to switch to a
      * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
-    private SectionsPagerAdapter mSectionsPagerAdapter;
+    private static SectionsPagerAdapter mSectionsPagerAdapter;
     static final String SUIT_MODES = "suit_modes";
 
     /**
      * The {@link ViewPager} that will host the section contents.
      */
-    private ViewPager mViewPager;
-    private ArrayList<CharSequence> mModes;
+    private static ViewPager mViewPager;
+    private static ArrayList<CharSequence> mModes;
     private ArrayList<Fragment> modeFragments;
-    private TabLayout tabLayout;
+    private static TabLayout tabLayout;
     private Button deleteTabBtn, renameModeBtn;
 
     @Override
@@ -42,8 +46,7 @@ public class MainScreenActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         if(savedInstanceState != null) {
             mModes = (ArrayList<CharSequence>) savedInstanceState.getSerializable(SUIT_MODES);
-        }
-        else {
+        } else {
             mModes = new ArrayList<CharSequence>();
             modeFragments = new ArrayList<Fragment>();
         }
@@ -110,9 +113,10 @@ public class MainScreenActivity extends AppCompatActivity {
         renameModeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Integer pos = tabLayout.getSelectedTabPosition();
-                mViewPager.setCurrentItem(pos - 1);
-                deleteTab(pos);
+                // Prompt the user if they are sure they want to delete the mode
+                PromptDelete del = PromptDelete.newInstance("Delete Mode?");
+                FragmentManager fm = getSupportFragmentManager();
+                del.show(fm, "DEL");
             }
         });
 
@@ -180,4 +184,38 @@ public class MainScreenActivity extends AppCompatActivity {
             return mModes.get(position);
         }
     }
+
+    public static class PromptDelete extends DialogFragment {
+        public static PromptDelete newInstance(String title) {
+            PromptDelete frag = new PromptDelete();
+            Bundle args = new Bundle();
+            args.putString("title", title);
+            frag.setArguments(args);
+            return frag;
+        }
+
+        // DELETE Mode dialog prompt
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            // Use the Builder class for convenient dialog construction
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder
+            .setMessage("Delete this Mode?")
+            .setPositiveButton("DELETE", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    // Call the calling Activity's deleteTab function
+                    MainScreenActivity main = (MainScreenActivity) getActivity();
+                    main.deleteTab(tabLayout.getSelectedTabPosition());
+                }
+            })
+            .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    // User cancelled the dialog
+                }
+            });
+            // Create and return the Dialog
+            return builder.create();
+        }
+    }
+
 }
