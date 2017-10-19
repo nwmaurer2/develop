@@ -49,7 +49,7 @@ public class ModesTabFragment extends Fragment implements View.OnClickListener {
         View rootView = inflater.inflate(R.layout.fragment_modes_tab, container, false);
         btnConfig = (Button) rootView.findViewById(R.id.button_config);
         btnConfig.setOnClickListener(this);
-        configMode = "Hud Config";
+        configMode = getString(R.string.hud_mode);
         return rootView;
     }
 
@@ -64,22 +64,28 @@ public class ModesTabFragment extends Fragment implements View.OnClickListener {
     public void onClick(View v) {
         switch(v.getId()) {
             case R.id.button_config:
+                //switch view from buttons_mode to hud_mode
+                if(configMode == null || configMode.equals(getString(R.string.buttons_mode))){
 
-                if(configMode == null || configMode.equals("Buttons Config")){
                     HudFragment hudFragment = new HudFragment();
                     FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
                     transaction.replace(R.id.mode_container, hudFragment);
                     transaction.addToBackStack(null).commit();
-                    btnConfig.setText("Buttons Config");
-                    configMode = "Hud Config";
+
+                    btnConfig.setText(getString(R.string.buttons_mode));
+                    configMode = getString(R.string.hud_mode);
                 }
-                else if(configMode.equals("Hud Config")) {
+
+                //switch view from hud_mode to buttons_mode
+                else if(configMode.equals(getString(R.string.hud_mode))) {
+
                     ButtonsTabFragment buttonsTabFragment = new ButtonsTabFragment();
                     FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
                     transaction.replace(R.id.mode_container, buttonsTabFragment);
                     transaction.addToBackStack(null).commit();
-                    btnConfig.setText("Hud Config");
-                    configMode = "Buttons Config";
+
+                    btnConfig.setText(getString(R.string.hud_mode));
+                    configMode = getString(R.string.buttons_mode);
                 }
 
                 break;
