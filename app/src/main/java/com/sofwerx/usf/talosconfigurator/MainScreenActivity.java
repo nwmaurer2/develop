@@ -1,7 +1,11 @@
 package com.sofwerx.usf.talosconfigurator;
 
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 
 import android.support.v4.app.Fragment;
@@ -10,7 +14,9 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MainScreenActivity extends AppCompatActivity {
@@ -23,29 +29,31 @@ public class MainScreenActivity extends AppCompatActivity {
      * may be best to switch to a
      * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
-    private SectionsPagerAdapter mSectionsPagerAdapter;
+    private static SectionsPagerAdapter mSectionsPagerAdapter;
     static final String SUIT_MODES = "suit_modes";
 
     /**
      * The {@link ViewPager} that will host the section contents.
      */
-    private ViewPager mViewPager;
-    private HashMap<Integer, CharSequence> mModes;
-    private TabLayout tabLayout;
+    private static ViewPager mViewPager;
+    private static ArrayList<CharSequence> mModes;
+    private ArrayList<Fragment> modeFragments;
+    private static TabLayout tabLayout;
+    private Button deleteTabBtn, renameModeBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if(savedInstanceState != null) {
-            mModes = (HashMap<Integer, CharSequence>) savedInstanceState.getSerializable(SUIT_MODES);
+            mModes = (ArrayList<CharSequence>) savedInstanceState.getSerializable(SUIT_MODES);
+        } else {
+            mModes = new ArrayList<CharSequence>();
+            modeFragments = new ArrayList<Fragment>();
         }
-        else {
-            mModes = new HashMap<Integer, CharSequence>();
-        }
-        mModes.put(0, "FILE");
-        mModes.put(1, "ASSAULT");
-        mModes.put(2, "INFIL");
-        mModes.put(3, "RECON");
+        mModes.add("FILE");
+        mModes.add("ASSAULT");
+        mModes.add("INFIL");
+        mModes.add("RECON");
 
         setContentView(R.layout.activity_main_screen);
 
@@ -60,33 +68,71 @@ public class MainScreenActivity extends AppCompatActivity {
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
-        // New Tab Button
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
-            public void onClick(View view) {
-                Integer newIdx = mModes.size();
-                mModes.put(newIdx, "New Mode");
-                mViewPager.setAdapter(mSectionsPagerAdapter);
-                tabLayout.setupWithViewPager(mViewPager);
+            public void onTabSelected(TabLayout.Tab tab) {
+                // Hide the delete mode button and rename mode button when on the File Screen
+                if (tab.getPosition() == 0) {
+                    deleteTabBtn.setVisibility(View.INVISIBLE);
+                    renameModeBtn.setVisibility(View.INVISIBLE);
+                } else {
+                    deleteTabBtn.setVisibility(View.VISIBLE);
+                    renameModeBtn.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
             }
         });
 
-        // Delete Tab
-        FloatingActionButton deleteTabBtn = (FloatingActionButton) findViewById(R.id.del);
+        // New Tab Button
+        Button newTabBtn = (Button) findViewById(R.id.btnNewTab);
+        newTabBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mModes.add("New Mode");
+                mSectionsPagerAdapter.notifyDataSetChanged();
+
+                mViewPager.setAdapter(mSectionsPagerAdapter);
+                tabLayout.setupWithViewPager(mViewPager);
+
+                // Goto the new tab
+                mViewPager.setCurrentItem(mModes.size());
+            }
+        });
+
+        // Delete Tab Button
+        renameModeBtn = (Button) findViewById(R.id.btnDelTab);
+        renameModeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Prompt the user if they are sure they want to delete the mode
+                PromptDelete del = PromptDelete.newInstance("Delete Mode?");
+                FragmentManager fm = getSupportFragmentManager();
+                del.show(fm, "DEL");
+            }
+        });
+
+        // Rename Tab Button
+        deleteTabBtn = (Button) findViewById(R.id.btnRename);
         deleteTabBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Integer currentTab = tabLayout.getSelectedTabPosition();
-                if (currentTab > 0) {
-                    // Trying to remove mModes crashes
-                    // Need to remove the deleted mMode else when you add a new tab they all come back.
-                    // mModes.remove(currentTab);
-                    tabLayout.removeTabAt(currentTab);
-                }
+                // Do work here
+                // Popup a dialog for the user to type in a new name
+                // Set the tab name
             }
         });
 
+        // Start on the first mode tab
+        mViewPager.setCurrentItem(1);
     }
 
     @Override
@@ -96,6 +142,12 @@ public class MainScreenActivity extends AppCompatActivity {
     }
 
 
+    public void deleteTab(int pos) {
+        if (pos > 0) {
+            mModes.remove(pos);
+            mSectionsPagerAdapter.notifyDataSetChanged();
+        }
+    }
 
 
     /**
@@ -112,12 +164,12 @@ public class MainScreenActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-            if(position == 0)
+            if(position == 0) {
                 return FileTabFragment.newInstance(position + 1);
-            else if(position == 1)
-                return ButtonsTabFragment.newInstance(position + 1);
-            else
+            } else {
                 return ModesTabFragment.newInstance(position - 1);
+            }
+
         }
 
         @Override
@@ -132,4 +184,38 @@ public class MainScreenActivity extends AppCompatActivity {
             return mModes.get(position);
         }
     }
+
+    public static class PromptDelete extends DialogFragment {
+        public static PromptDelete newInstance(String title) {
+            PromptDelete frag = new PromptDelete();
+            Bundle args = new Bundle();
+            args.putString("title", title);
+            frag.setArguments(args);
+            return frag;
+        }
+
+        // DELETE Mode dialog prompt
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            // Use the Builder class for convenient dialog construction
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder
+            .setMessage("Delete this Mode?")
+            .setPositiveButton("DELETE", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    // Call the calling Activity's deleteTab function
+                    MainScreenActivity main = (MainScreenActivity) getActivity();
+                    main.deleteTab(tabLayout.getSelectedTabPosition());
+                }
+            })
+            .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    // User cancelled the dialog
+                }
+            });
+            // Create and return the Dialog
+            return builder.create();
+        }
+    }
+
 }
