@@ -113,7 +113,7 @@ public class MainScreenActivity extends AppCompatActivity {
         newTabBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mModes.add("" + mModes.size());
+                mModes.add("" + mModes.size()); //This will create modes with duplicate names if a mode is added (say 4), then a preceding mode is deleted (say 3), and another mode is added (will be named 4 as well).
                 mSectionsPagerAdapter.notifyDataSetChanged();
 
                 // Goto the new tab
@@ -235,7 +235,7 @@ public class MainScreenActivity extends AppCompatActivity {
                 public void onClick(DialogInterface dialog, int id) {
                     // Call the calling Activity's deleteTab function
                     MainScreenActivity main = (MainScreenActivity) getActivity();
-                    main.deleteTab(tabLayout.getSelectedTabPosition());
+                    main.deleteTab(main.tabLayout.getSelectedTabPosition());
                 }
             })
             .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
@@ -272,7 +272,7 @@ public class MainScreenActivity extends AppCompatActivity {
                             // Call the calling Activity's deleteTab function
                             MainScreenActivity main = (MainScreenActivity) getActivity();
                             CharSequence name = newName.getText();
-                            main.renameTab(name,tabLayout.getSelectedTabPosition());
+                            main.renameTab(name,main.tabLayout.getSelectedTabPosition());
                         }
                     })
                     .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
