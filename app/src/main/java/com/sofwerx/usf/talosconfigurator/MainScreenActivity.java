@@ -15,6 +15,7 @@ import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,9 +52,9 @@ public class MainScreenActivity extends AppCompatActivity {
             modeFragments = new ArrayList<Fragment>();
         }
         mModes.add("FILE");
-        mModes.add("ASSAULT");
-        mModes.add("INFIL");
-        mModes.add("RECON");
+        mModes.add("1");
+        mModes.add("2");
+        mModes.add("3");
 
         setContentView(R.layout.activity_main_screen);
 
@@ -97,7 +98,7 @@ public class MainScreenActivity extends AppCompatActivity {
         newTabBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mModes.add("New Mode");
+                mModes.add("" + mModes.size());
                 mSectionsPagerAdapter.notifyDataSetChanged();
 
                 mViewPager.setAdapter(mSectionsPagerAdapter);
@@ -109,8 +110,8 @@ public class MainScreenActivity extends AppCompatActivity {
         });
 
         // Delete Tab Button
-        renameModeBtn = (Button) findViewById(R.id.btnDelTab);
-        renameModeBtn.setOnClickListener(new View.OnClickListener() {
+        deleteTabBtn = (Button) findViewById(R.id.btnDelTab);
+        deleteTabBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // Prompt the user if they are sure they want to delete the mode
@@ -121,12 +122,14 @@ public class MainScreenActivity extends AppCompatActivity {
         });
 
         // Rename Tab Button
-        deleteTabBtn = (Button) findViewById(R.id.btnRename);
-        deleteTabBtn.setOnClickListener(new View.OnClickListener() {
+        renameModeBtn = (Button) findViewById(R.id.btnRename);
+        renameModeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Do work here
                 // Popup a dialog for the user to type in a new name
+                PromptRename rename = PromptRename.newInstance("Rename Mode");
+                FragmentManager fm = getSupportFragmentManager();
+                rename.show(fm, "Rename");
                 // Set the tab name
             }
         });
@@ -149,6 +152,13 @@ public class MainScreenActivity extends AppCompatActivity {
         }
     }
 
+    public void renameTab(CharSequence newName, int tabNumber) {
+        if( tabNumber > 0){
+            mModes.set(tabNumber, newName);
+            mSectionsPagerAdapter.notifyDataSetChanged();
+        }
+
+    }
 
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
@@ -213,6 +223,44 @@ public class MainScreenActivity extends AppCompatActivity {
                     // User cancelled the dialog
                 }
             });
+            // Create and return the Dialog
+            return builder.create();
+        }
+    }
+
+
+    public static class PromptRename extends DialogFragment {
+        public static PromptRename newInstance(String title) {
+            PromptRename frag = new PromptRename();
+            Bundle args = new Bundle();
+            args.putString("title", title);
+            frag.setArguments(args);
+            return frag;
+        }
+
+        // Rename Mode dialog prompt
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            // Use the Builder class for convenient dialog construction
+            final EditText newName = new EditText(getActivity());
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder
+                    .setMessage("Enter a new name for this mode: ")
+                    .setView(newName)
+                    .setPositiveButton("RENAME", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // Call the calling Activity's deleteTab function
+                            MainScreenActivity main = (MainScreenActivity) getActivity();
+                            CharSequence name = newName.getText();
+                            main.renameTab(name,tabLayout.getSelectedTabPosition());
+                        }
+                    })
+                    .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // User cancelled the dialog
+                        }
+                    });
+
             // Create and return the Dialog
             return builder.create();
         }
