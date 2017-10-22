@@ -4,8 +4,13 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
+//from hud-btn-config-nav
+import android.support.v4.app.FragmentTransaction;
+//end from hud-btn-config-nav
+//from BtnConfigDev
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
+//end from BtnConfigDev
 import android.support.v7.app.AppCompatActivity;
 
 import android.support.v4.app.Fragment;
@@ -13,12 +18,12 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class MainScreenActivity extends AppCompatActivity {
 
@@ -39,15 +44,20 @@ public class MainScreenActivity extends AppCompatActivity {
     private static ViewPager mViewPager;
     private static ArrayList<CharSequence> mModes;
     private ArrayList<Fragment> modeFragments;
-    private static TabLayout tabLayout;
-    private Button deleteTabBtn, renameModeBtn;
+    private TabLayout tabLayout;
+    private Button deleteTabBtn, renameModeBtn, buttonsConfig;
+   // private boolean btnConfigEnabled;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if(savedInstanceState != null) {
             mModes = (ArrayList<CharSequence>) savedInstanceState.getSerializable(SUIT_MODES);
-        } else {
+
+        }
+        else {
+
             mModes = new ArrayList<CharSequence>();
             modeFragments = new ArrayList<Fragment>();
         }
@@ -56,9 +66,11 @@ public class MainScreenActivity extends AppCompatActivity {
         mModes.add("2");
         mModes.add("3");
 
+        //btnConfigEnabled = false;
+
         setContentView(R.layout.activity_main_screen);
 
-        // Create the adapter that will return a fragment for each of the seven
+        // Create the adapter that will return a fragment for each of the four
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
@@ -67,7 +79,7 @@ public class MainScreenActivity extends AppCompatActivity {
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
-        tabLayout.setupWithViewPager(mViewPager);
+        tabLayout.setupWithViewPager(mViewPager, true);
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -76,9 +88,12 @@ public class MainScreenActivity extends AppCompatActivity {
                 if (tab.getPosition() == 0) {
                     deleteTabBtn.setVisibility(View.INVISIBLE);
                     renameModeBtn.setVisibility(View.INVISIBLE);
+                   // buttonsConfig.setVisibility(View.INVISIBLE);
+
                 } else {
                     deleteTabBtn.setVisibility(View.VISIBLE);
                     renameModeBtn.setVisibility(View.VISIBLE);
+                   // buttonsConfig.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -100,9 +115,6 @@ public class MainScreenActivity extends AppCompatActivity {
             public void onClick(View view) {
                 mModes.add("" + mModes.size());
                 mSectionsPagerAdapter.notifyDataSetChanged();
-
-                mViewPager.setAdapter(mSectionsPagerAdapter);
-                tabLayout.setupWithViewPager(mViewPager);
 
                 // Goto the new tab
                 mViewPager.setCurrentItem(mModes.size());
@@ -133,6 +145,17 @@ public class MainScreenActivity extends AppCompatActivity {
                 // Set the tab name
             }
         });
+
+        // Buttons Config button
+//        buttonsConfig = (Button) findViewById(R.id.button_config);
+//        buttonsConfig.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Log.d("main activity", "buttons config clicked");
+//                btnConfigEnabled = !btnConfigEnabled;
+//
+//            }
+//        });
 
         // Start on the first mode tab
         mViewPager.setCurrentItem(1);
@@ -173,7 +196,6 @@ public class MainScreenActivity extends AppCompatActivity {
         @Override
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
             if(position == 0) {
                 return FileTabFragment.newInstance(position + 1);
             } else {
@@ -184,13 +206,11 @@ public class MainScreenActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            //return size of map
             return mModes.size();
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
-            //make a map<int, CharSequence>
             return mModes.get(position);
         }
     }

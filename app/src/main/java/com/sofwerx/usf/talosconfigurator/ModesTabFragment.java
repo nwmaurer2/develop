@@ -3,15 +3,22 @@ package com.sofwerx.usf.talosconfigurator;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.Button;
 
 
-public class ModesTabFragment extends Fragment {
+public class ModesTabFragment extends Fragment implements View.OnClickListener {
 
     private static final String ARG_SECTION_NUMBER = "section_number";
+    private static final String CURRENT_CONFIG = "current_config";
+    private static final String TAG = "ModesTab";
+    private static String configMode;
+    private Button btnConfig;
+
 
 
     public ModesTabFragment() {}
@@ -27,13 +34,64 @@ public class ModesTabFragment extends Fragment {
 
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+
+
+
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_modes_tab, container, false);
-        TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-        textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
+        btnConfig = (Button) rootView.findViewById(R.id.button_config);
+        btnConfig.setOnClickListener(this);
+        configMode = getString(R.string.hud_mode);
         return rootView;
     }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        HudFragment hud = new HudFragment();
+        FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
+        transaction.replace(R.id.mode_container, hud).commit();
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch(v.getId()) {
+            case R.id.button_config:
+                //switch view from buttons_mode to hud_mode
+                if(configMode == null || configMode.equals(getString(R.string.buttons_mode))){
+
+                    HudFragment hudFragment = new HudFragment();
+                    FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
+                    transaction.replace(R.id.mode_container, hudFragment);
+                    transaction.addToBackStack(null).commit();
+
+                    btnConfig.setText(getString(R.string.buttons_mode));
+                    configMode = getString(R.string.hud_mode);
+                }
+
+                //switch view from hud_mode to buttons_mode
+                else if(configMode.equals(getString(R.string.hud_mode))) {
+
+                    ButtonsTabFragment buttonsTabFragment = new ButtonsTabFragment();
+                    FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
+                    transaction.replace(R.id.mode_container, buttonsTabFragment);
+                    transaction.addToBackStack(null).commit();
+
+                    btnConfig.setText(getString(R.string.hud_mode));
+                    configMode = getString(R.string.buttons_mode);
+                }
+
+                break;
+        }
+
+    }
+
 
 }
