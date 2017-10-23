@@ -9,6 +9,6 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_button_tab_fragment">Hello Buttons Tab Fragment</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="hud_mode">Hud Config</string>
+    <string name="buttons_mode">Buttons Config</string>
 </resources>
