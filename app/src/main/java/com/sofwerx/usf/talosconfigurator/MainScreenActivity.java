@@ -4,8 +4,14 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
+//from hud-btn-config-nav
+import android.support.v4.app.FragmentTransaction;
+//end from hud-btn-config-nav
+//from BtnConfigDev
 import android.support.v4.app.DialogFragment;
+import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.AlertDialog;
+//end from BtnConfigDev
 import android.support.v7.app.AppCompatActivity;
 
 import android.support.v4.app.Fragment;
@@ -13,11 +19,13 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.view.MotionEvent;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class MainScreenActivity extends AppCompatActivity {
 
@@ -38,26 +46,33 @@ public class MainScreenActivity extends AppCompatActivity {
     private static ViewPager mViewPager;
     private static ArrayList<CharSequence> mModes;
     private ArrayList<Fragment> modeFragments;
-    private static TabLayout tabLayout;
-    private Button deleteTabBtn, renameModeBtn;
+    private TabLayout tabLayout;
+    private Button deleteTabBtn, renameModeBtn, buttonsConfig;
+   // private boolean btnConfigEnabled;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if(savedInstanceState != null) {
             mModes = (ArrayList<CharSequence>) savedInstanceState.getSerializable(SUIT_MODES);
-        } else {
+
+        }
+        else {
+
             mModes = new ArrayList<CharSequence>();
             modeFragments = new ArrayList<Fragment>();
         }
         mModes.add("FILE");
-        mModes.add("ASSAULT");
-        mModes.add("INFIL");
-        mModes.add("RECON");
+        mModes.add("1");
+        mModes.add("2");
+        mModes.add("3");
+
+        //btnConfigEnabled = false;
 
         setContentView(R.layout.activity_main_screen);
 
-        // Create the adapter that will return a fragment for each of the seven
+        // Create the adapter that will return a fragment for each of the four
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
@@ -65,8 +80,12 @@ public class MainScreenActivity extends AppCompatActivity {
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
+        // Disables swipe paging
+        // https://stackoverflow.com/questions/9650265/how-do-disable-paging-by-swiping-with-finger-in-viewpager-but-still-be-able-to-s/13392198#13392198
+        mViewPager.beginFakeDrag();
+
         tabLayout = (TabLayout) findViewById(R.id.tabs);
-        tabLayout.setupWithViewPager(mViewPager);
+        tabLayout.setupWithViewPager(mViewPager, true);
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -75,9 +94,12 @@ public class MainScreenActivity extends AppCompatActivity {
                 if (tab.getPosition() == 0) {
                     deleteTabBtn.setVisibility(View.INVISIBLE);
                     renameModeBtn.setVisibility(View.INVISIBLE);
+                   // buttonsConfig.setVisibility(View.INVISIBLE);
+
                 } else {
                     deleteTabBtn.setVisibility(View.VISIBLE);
                     renameModeBtn.setVisibility(View.VISIBLE);
+                   // buttonsConfig.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -97,11 +119,8 @@ public class MainScreenActivity extends AppCompatActivity {
         newTabBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mModes.add("New Mode");
+                mModes.add("" + mModes.size()); //This will create modes with duplicate names if a mode is added (say 4), then a preceding mode is deleted (say 3), and another mode is added (will be named 4 as well).
                 mSectionsPagerAdapter.notifyDataSetChanged();
-
-                mViewPager.setAdapter(mSectionsPagerAdapter);
-                tabLayout.setupWithViewPager(mViewPager);
 
                 // Goto the new tab
                 mViewPager.setCurrentItem(mModes.size());
@@ -109,8 +128,8 @@ public class MainScreenActivity extends AppCompatActivity {
         });
 
         // Delete Tab Button
-        renameModeBtn = (Button) findViewById(R.id.btnDelTab);
-        renameModeBtn.setOnClickListener(new View.OnClickListener() {
+        deleteTabBtn = (Button) findViewById(R.id.btnDelTab);
+        deleteTabBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // Prompt the user if they are sure they want to delete the mode
@@ -121,15 +140,28 @@ public class MainScreenActivity extends AppCompatActivity {
         });
 
         // Rename Tab Button
-        deleteTabBtn = (Button) findViewById(R.id.btnRename);
-        deleteTabBtn.setOnClickListener(new View.OnClickListener() {
+        renameModeBtn = (Button) findViewById(R.id.btnRename);
+        renameModeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Do work here
                 // Popup a dialog for the user to type in a new name
+                PromptRename rename = PromptRename.newInstance("Rename Mode");
+                FragmentManager fm = getSupportFragmentManager();
+                rename.show(fm, "Rename");
                 // Set the tab name
             }
         });
+
+        // Buttons Config button
+//        buttonsConfig = (Button) findViewById(R.id.button_config);
+//        buttonsConfig.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Log.d("main activity", "buttons config clicked");
+//                btnConfigEnabled = !btnConfigEnabled;
+//
+//            }
+//        });
 
         // Start on the first mode tab
         mViewPager.setCurrentItem(1);
@@ -149,6 +181,13 @@ public class MainScreenActivity extends AppCompatActivity {
         }
     }
 
+    public void renameTab(CharSequence newName, int tabNumber) {
+        if( tabNumber > 0){
+            mModes.set(tabNumber, newName);
+            mSectionsPagerAdapter.notifyDataSetChanged();
+        }
+
+    }
 
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
@@ -163,7 +202,6 @@ public class MainScreenActivity extends AppCompatActivity {
         @Override
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
             if(position == 0) {
                 return FileTabFragment.newInstance(position + 1);
             } else {
@@ -174,13 +212,11 @@ public class MainScreenActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            //return size of map
             return mModes.size();
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
-            //make a map<int, CharSequence>
             return mModes.get(position);
         }
     }
@@ -205,7 +241,7 @@ public class MainScreenActivity extends AppCompatActivity {
                 public void onClick(DialogInterface dialog, int id) {
                     // Call the calling Activity's deleteTab function
                     MainScreenActivity main = (MainScreenActivity) getActivity();
-                    main.deleteTab(tabLayout.getSelectedTabPosition());
+                    main.deleteTab(main.tabLayout.getSelectedTabPosition());
                 }
             })
             .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
@@ -213,6 +249,44 @@ public class MainScreenActivity extends AppCompatActivity {
                     // User cancelled the dialog
                 }
             });
+            // Create and return the Dialog
+            return builder.create();
+        }
+    }
+
+
+    public static class PromptRename extends DialogFragment {
+        public static PromptRename newInstance(String title) {
+            PromptRename frag = new PromptRename();
+            Bundle args = new Bundle();
+            args.putString("title", title);
+            frag.setArguments(args);
+            return frag;
+        }
+
+        // Rename Mode dialog prompt
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            // Use the Builder class for convenient dialog construction
+            final EditText newName = new EditText(getActivity());
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder
+                    .setMessage("Enter a new name for this mode: ")
+                    .setView(newName)
+                    .setPositiveButton("RENAME", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // Call the calling Activity's deleteTab function
+                            MainScreenActivity main = (MainScreenActivity) getActivity();
+                            CharSequence name = newName.getText();
+                            main.renameTab(name,main.tabLayout.getSelectedTabPosition());
+                        }
+                    })
+                    .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // User cancelled the dialog
+                        }
+                    });
+
             // Create and return the Dialog
             return builder.create();
         }
