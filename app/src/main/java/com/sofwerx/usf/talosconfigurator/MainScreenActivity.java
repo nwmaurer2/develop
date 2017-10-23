@@ -9,6 +9,7 @@ import android.support.v4.app.FragmentTransaction;
 //end from hud-btn-config-nav
 //from BtnConfigDev
 import android.support.v4.app.DialogFragment;
+import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.AlertDialog;
 //end from BtnConfigDev
 import android.support.v7.app.AppCompatActivity;
@@ -18,6 +19,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -77,6 +79,10 @@ public class MainScreenActivity extends AppCompatActivity {
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
+
+        // Disables swipe paging
+        // https://stackoverflow.com/questions/9650265/how-do-disable-paging-by-swiping-with-finger-in-viewpager-but-still-be-able-to-s/13392198#13392198
+        mViewPager.beginFakeDrag();
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager, true);
