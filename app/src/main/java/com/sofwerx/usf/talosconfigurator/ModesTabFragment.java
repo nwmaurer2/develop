@@ -8,7 +8,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
+
+import static com.sofwerx.usf.talosconfigurator.R.id.listofelements;
 
 
 public class ModesTabFragment extends Fragment implements View.OnClickListener {
@@ -50,6 +54,30 @@ public class ModesTabFragment extends Fragment implements View.OnClickListener {
         btnConfig = (Button) rootView.findViewById(R.id.button_config);
         btnConfig.setOnClickListener(this);
         configMode = getString(R.string.hud_mode);
+
+        String[] menuitems2;
+        menuitems2 = new String[]{"Do something",
+                "Do Something else!",
+                "Do another thing!",
+                "Do",
+                "It",
+                "All",
+                "The",
+                "Time",
+                "Every",
+                "Night",
+                "Every",
+                "Day"};
+        ListView listViewitems =  (ListView) rootView.findViewById(listofelements);
+
+        ArrayAdapter<String> listViewAdapter = new ArrayAdapter<String>(
+                getActivity(),
+                android.R.layout.simple_list_item_1,
+                menuitems2
+        );
+
+        listViewitems.setAdapter(listViewAdapter);
+
         return rootView;
     }
 
