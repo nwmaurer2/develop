@@ -1,6 +1,8 @@
 package com.sofwerx.usf.talosconfigurator;
 
+import android.nfc.Tag;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,6 +16,8 @@ public class FileTabFragment extends Fragment implements View.OnClickListener {
 
     private static final String ARG_SECTION_NUMBER = "section_number";
     private Button btn_save;
+    private Button btn_new;
+    private Button btn_load;
     private EditText filename;
 
     public FileTabFragment() {}
@@ -37,8 +41,14 @@ public class FileTabFragment extends Fragment implements View.OnClickListener {
         btn_save = (Button) view.findViewById(R.id.btn_save);
         filename = (EditText) view.findViewById(R.id.filename);
 
+        btn_new = (Button) view.findViewById(R.id.btn_new);
+
+        btn_load = (Button) view.findViewById(R.id.btn_load);
+
         // Set the onClickListener to the Fragment
         btn_save.setOnClickListener(this);
+        btn_new.setOnClickListener(this);
+        btn_load.setOnClickListener(this);
 
         // Inflate the layout for this fragment
         return view;
@@ -52,6 +62,12 @@ public class FileTabFragment extends Fragment implements View.OnClickListener {
             case R.id.btn_save:
                 save(v);
                 break;
+            case R.id.btn_load:
+                load(v);
+                break;
+            case R.id.btn_new:
+                n(v);
+                break;
             default:
                 break;
         }
@@ -61,8 +77,18 @@ public class FileTabFragment extends Fragment implements View.OnClickListener {
     public void save(View view) {
 
 
-        filename.setText("swiggity swooty");
+        String Response = filename.getText().toString();
+        filename.setText(Response);
 
+
+    }
+
+    public void load(View view) {
+        filename.setText("You just hit load");
+    }
+
+    public void n(View view) {
+        filename.setText("Default_configuration.xml");
     }
 
 }
